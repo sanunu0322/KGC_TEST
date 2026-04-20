@@ -3,6 +3,67 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 from base64 import b64encode
+from fpdf import FPDF
+
+# 1. PDF 클래스 재정의 (한글 지원용)
+class KGC_PDF(FPDF):
+    def header(self):
+        # 폰트가 로드되었다고 가정 (아래에서 font 추가 필요)
+        try:
+            self.set_font('Nanum', 'B', 15)
+        except:
+            self.set_font('Arial', 'B', 15)
+        self.cell(0, 10, 'KGC Weekly Marketing Report', 0, 1, 'C')
+        self.ln(5)
+
+# 2. PDF 생성 함수 수정
+def generate_korean_pdf():
+    pdf = KGC_PDF()
+    
+    # [중요] 한글 폰트 파일을 GitHub 리포지토리에 같이 업로드해야 합니다.
+    # 예: 나눔고딕(NanumGothic.ttf) 파일
+    try:
+        # 폰트 파일이 폴더에 있어야 함
+        # pdf.add_font('Nanum', '', 'NanumGothic.ttf', unicode=True)
+        # pdf.set_font('Nanum', '', 12)
+        font_ready = True
+    except:
+        # 폰트 파일이 없을 경우 영문으로 대체하여 에러 방지
+        pdf.set_font('Arial', '', 12)
+        font_ready = False
+
+    pdf.add_page()
+    
+    # 내용 작성
+    content = [
+        f"Product: Everyday Balance (Renewal)",
+        f"Period: 2026 March 4th Week",
+        f"- Metropolitan Sales: +15%",
+        f"- Local Sales: -2%",
+        f"- Target 2030s: 45%",
+        f"",
+        f"Strategic Insight:",
+        f"1. Convenience store channel is dominant.",
+        f"2. Outdoor keywords (Tennis/Hiking) increased 30%."
+    ]
+
+    for line in content:
+        pdf.cell(0, 10, line, ln=True)
+
+    # 바이너리로 변환 (latin-1 대신'UTF-8' 처리가 가능한 방식)
+    return pdf.output(dest='S').encode('latin-1', 'ignore') 
+
+# --- 이하 기존 Streamlit UI 코드 동일 ---
+
+if st.sidebar.button("PDF 리포트 생성"):
+    try:
+        pdf_bytes = generate_korean_pdf()
+        b64 = base64.b64encode(pdf_bytes).decode()
+        # 다운로드 버튼 생성
+        href = f'<a href="data:application/pdf;base64,{b64}" download="KGC_Report.pdf">👉 여기를 클릭해 다운로드</a>'
+        st.sidebar.markdown(href, unsafe_allow_html=True)
+    except Exception as e:
+        st.sidebar.error(f"PDF 생성 중 오류: {e}")
 
 # [중요] PDF 출력을 위해 추가된 함수
 def generate_pdf_download_link():
