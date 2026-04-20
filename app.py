@@ -2,6 +2,15 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+from base64 import b64encode
+
+# [중요] PDF 출력을 위해 추가된 함수
+def generate_pdf_download_link():
+    # 실제 운영 환경에서는 아래 생성된 PDF 파일을 읽어와서 다운로드 링크로 변환합니다.
+    with open("KGC_Weekly_Insight_Report.pdf", "rb") as f:
+        pdf_base64 = b64encode(f.read()).decode()
+    
+    return f'<a href="data:application/pdf;base64,{pdf_base64}" download="KGC_Report_2026_03_4W.pdf">📥 클릭하여 PDF 보고서 다운로드</a>'
 
 # 1. 페이지 설정
 st.set_page_config(page_title="KGC 브랜드 전략실 - 주간 마케팅 통찰", layout="wide")
@@ -57,3 +66,10 @@ with con1:
 
 with con2:
     st.info("**💡 팀장 전략 제언**\n- **TPO 확장:** 등산/테니스 키워드 급증에 따른 스포츠 마케팅 강화\n- **채널 최적화:** 편의점 채널 강세를 이용한 1+1 또는 소포장 프로모션 제안")
+
+# 6. PDF 리포트 추출 섹션 (사이드바 또는 하단)
+st.sidebar.divider()
+st.sidebar.markdown("### 📄 보고서 관리")
+if st.sidebar.button("PDF 리포트 생성"):
+    st.sidebar.success("리포트가 생성되었습니다!")
+    st.sidebar.markdown(generate_pdf_download_link(), unsafe_allow_html=True)
