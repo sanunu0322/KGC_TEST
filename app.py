@@ -4,6 +4,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from base64 import b64encode
 from fpdf import FPDF
+import base64
 
 # 1. PDF 클래스 재정의 (한글 지원용)
 class KGC_PDF(FPDF):
